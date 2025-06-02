@@ -6,7 +6,7 @@ import {
   SafeAreaView,
 } from 'react-native-safe-area-context';
 
-const WelcomeScreen = () => {
+export default function WelcomeScreen  () {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -28,20 +28,19 @@ const WelcomeScreen = () => {
         </View>
         
         {/* Get Started Button */}
-        {/* <Link href="/home" asChild> */}
+        <Link href="../signup" asChild>
           <TouchableOpacity 
             style={styles.getStartedButton}
             activeOpacity={0.7}
           >
             <Text style={styles.getStartedText}>Get Started</Text>
           </TouchableOpacity>
-        {/* </Link> */}
+        </Link>
       </View>
     </SafeAreaView>
   );
 };
 
-export default WelcomeScreen;
 
 const styles = StyleSheet.create({
   safeArea: {
