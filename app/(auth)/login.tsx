@@ -45,7 +45,10 @@ export default function Login() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [
+    fadeAnim,
+    slideAnim
+  ]);
 
   const handleLogin = () => {
     // Add haptic feedback on login tap
