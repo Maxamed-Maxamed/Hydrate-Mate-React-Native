@@ -1,89 +1,161 @@
-import { Colors } from '@/constants/Colors';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link } from 'expo-router';
-import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import {
-  SafeAreaView,
-} from 'react-native-safe-area-context';
+import React, { useEffect, useMemo } from 'react';
+import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function WelcomeScreen  () {
+const { width } = Dimensions.get('window');
+
+export default function WelcomeScreen() {
+  // Animation values using useMemo to ensure they are created only once
+  const animatedValues = useMemo(() => ({
+    logoOpacity: new Animated.Value(0),
+    textOpacity: new Animated.Value(0),
+    buttonOpacity: new Animated.Value(0)
+  }), []);
+
+  const { logoOpacity, textOpacity, buttonOpacity } = animatedValues;
+
+  // Animation sequence
+  useEffect(() => {
+    // Use Animated.sequence instead of staggerSequence
+    Animated.sequence([
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(textOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(buttonOpacity, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [animatedValues]); // Now we depend on the stable reference to animatedValues
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <LinearGradient
+        colors={['#FFFFFF', '#E6F7FF']}
+        style={styles.gradient}
+      />
+      
       <View style={styles.container}>
-        <View style={styles.contentContainer}>
-          {/* Logo/Illustration */}
-          <View style={styles.logoContainer}>
-            <Image 
-              source={require('@/assets/images/logo2.png')} 
-              style={styles.logo}
-              alt="Hydrate-Mate Logo"
-              resizeMethod="scale"
-            />
-          </View>
-          
-          {/* App Name */}
-          <Text style={styles.title}>
-            Hydrate Mate
+        {/* Logo Section */}
+        <Animated.View style={[styles.logoContainer, { opacity: logoOpacity }]}>
+          <Image 
+            source={require('@/assets/images/logo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+            accessibilityLabel="Hydrate Mate logo"
+          />
+        </Animated.View>
+        
+        {/* Welcome Text */}
+        <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+          <Text style={styles.welcomeText}>
+            Welcome to Hydrate Mate!
           </Text>
-        </View>
+          <Text style={styles.subtitleText}>
+            {"Let's stay refreshed together"} <Text style={styles.dropEmoji}>💧</Text>
+          </Text>
+        </Animated.View>
         
         {/* Get Started Button */}
-        <Link href="../signup" asChild>
-          <TouchableOpacity 
-            style={styles.getStartedButton}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.getStartedText}>Get Started</Text>
-          </TouchableOpacity>
-        </Link>
+        <Animated.View style={[styles.buttonContainer, { opacity: buttonOpacity }]}>
+          <Link href="../signup" asChild>
+            <TouchableOpacity 
+              style={styles.getStartedButton}
+              activeOpacity={0.7}
+              accessibilityLabel="Tap to begin hydration setup"
+              accessibilityRole="button"
+            >
+              <Text style={styles.getStartedText}>Get Started</Text>
+            </TouchableOpacity>
+          </Link>
+        </Animated.View>
       </View>
     </SafeAreaView>
   );
-};
-
+}
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.light.tint, // Using the primary blue color
+  },
+  gradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingHorizontal: width * 0.07,
     justifyContent: 'space-between',
-  },
-  contentContainer: {
-    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: width * 0.1,
   },
   logoContainer: {
-    width: '80%',
-    aspectRatio: 1,
-    marginBottom: 20,
-  },
-  logo: {
     width: '100%',
-    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
-  title: {
-    fontSize: 56,
+  logoImage: {
+    width: width * 0.5,
+    height: width * 0.5,
+  },
+  textContainer: {
+    width: '100%',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  welcomeText: {
+    fontSize: width * 0.07,
     fontWeight: '700',
-    color: 'white',
+    color: '#0E3757',
     textAlign: 'center',
-    marginTop: 20,
+    marginBottom: width * 0.02,
+  },
+  subtitleText: {
+    fontSize: width * 0.05,
+    fontWeight: '500',
+    color: '#0E3757',
+    textAlign: 'center',
+  },
+  dropEmoji: {
+    fontSize: width * 0.05,
+    color: '#007AFF',
+  },
+  buttonContainer: {
+    width: '100%',
+    marginBottom: width * 0.05,
   },
   getStartedButton: {
-    backgroundColor: 'white',
-    borderRadius: 28,
-    paddingVertical: 16,
+    backgroundColor: '#007AFF',
+    borderRadius: 30,
+    paddingVertical: width * 0.045,
     alignItems: 'center',
-    marginHorizontal: 40,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 5,
   },
   getStartedText: {
-    fontSize: 20,
+    fontSize: width * 0.055,
     fontWeight: '600',
-    color: Colors.light.tint,
+    color: 'white',
   }
 });
