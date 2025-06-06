@@ -37,3 +37,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+.trae/rules/project_rules.md
+.github/instructions/Instructions.instructions.md
+.trae/rules/project_rules.md
