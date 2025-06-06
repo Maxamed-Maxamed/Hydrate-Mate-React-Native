@@ -40,3 +40,24 @@ app-example
 .trae/rules/project_rules.md
 .github/instructions/Instructions.instructions.md
 .trae/rules/project_rules.md
+
+# Android Studio
+.idea/
+*.iml
+# VS Code
+.vscode/
+.history/
+# JetBrains
+.idea/
+*.iml
+# Xcode
+*.xcuserstate
+*.xcworkspace
+*.xcodeproj
+*.xcuserdatad     
+
+.trae/
+# Trae
+.trae/rules/project_rules.md
+.trae/rules/trae_rules.md
+.trae/rules/trae_rules.json 
