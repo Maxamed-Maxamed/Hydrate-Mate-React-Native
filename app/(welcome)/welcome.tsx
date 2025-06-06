@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo } from 'react';
 import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
+  const router = useRouter();
+
   // Animation values using useMemo to ensure they are created only once
   const animatedValues = useMemo(() => ({
     logoOpacity: new Animated.Value(0),
@@ -36,7 +38,15 @@ export default function WelcomeScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, [animatedValues]); // Now we depend on the stable reference to animatedValues
+  }, [
+    logoOpacity,
+    textOpacity,
+    buttonOpacity
+  ]); 
+
+  const handleGetStarted = () => {
+    router.push('/signup');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -68,16 +78,15 @@ export default function WelcomeScreen() {
         
         {/* Get Started Button */}
         <Animated.View style={[styles.buttonContainer, { opacity: buttonOpacity }]}>
-          <Link href="../signup" asChild>
-            <TouchableOpacity 
-              style={styles.getStartedButton}
-              activeOpacity={0.7}
-              accessibilityLabel="Tap to begin hydration setup"
-              accessibilityRole="button"
-            >
-              <Text style={styles.getStartedText}>Get Started</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            style={styles.getStartedButton}
+            activeOpacity={0.7}
+            accessibilityLabel="Tap to begin hydration setup"
+            accessibilityRole="button"
+            onPress={handleGetStarted}
+          >
+            <Text style={styles.getStartedText}>Get Started</Text>
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </SafeAreaView>

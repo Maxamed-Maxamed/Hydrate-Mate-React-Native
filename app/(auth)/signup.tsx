@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -18,6 +18,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function SignUp () {
+  const router = useRouter();
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,12 +47,21 @@ export default function SignUp () {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [
+    fadeAnim,
+    slideAnim
+  ]);
 
   const handleSignUp = () => {
     // Implement sign up functionality
     console.log('Creating account with:', name, email, password);
     Keyboard.dismiss();
+    // Optionally navigate after signup
+    // router.replace('/(tabs)');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
   };
 
   const togglePasswordVisibility = () => {
@@ -145,11 +156,9 @@ export default function SignUp () {
         
         <View style={styles.loginPrompt}>
           <Text style={styles.loginPromptText}>Already have an account? </Text>
-          <Link href="/login" asChild>
-            <TouchableOpacity>
-              <Text style={styles.loginText}>Log In</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity onPress={handleLogin}>
+            <Text style={styles.loginText}>Log In</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

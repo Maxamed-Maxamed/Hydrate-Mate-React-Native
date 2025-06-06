@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
@@ -19,6 +19,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width } = Dimensions.get('window');
 
 export default function Login() {
+  const router = useRouter();
+  
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,12 +60,16 @@ export default function Login() {
     console.log('Logging in with:', email, password);
     Keyboard.dismiss();
     
-    // Navigate to main app after login (replace with actual navigation)
+    // Navigate to main app after login
     // router.replace('/(tabs)');
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleSignup = () => {
+    router.push('/signup');
   };
 
   return (
@@ -168,11 +174,9 @@ export default function Login() {
         
         <View style={styles.signupPrompt}>
           <Text style={styles.signupPromptText}>{" Don't have an account?"} </Text>
-          <Link href="/signup" asChild>
-            <TouchableOpacity>
-              <Text style={styles.signupText}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity onPress={handleSignup}>
+            <Text style={styles.signupText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
