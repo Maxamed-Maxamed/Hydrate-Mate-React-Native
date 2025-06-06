@@ -61,3 +61,18 @@ app-example
 .trae/rules/project_rules.md
 .trae/rules/trae_rules.md
 .trae/rules/trae_rules.json 
+
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.staging
+# Trae
+.trae/rules/project_rules.md
+.trae/rules/trae_rules.md
+.trae/rules/trae_rules.json 
+# Trae
+.trae/rules/project_rules.md
+.trae/rules/project_rules.md
+.trae/rules/project_rules.md
