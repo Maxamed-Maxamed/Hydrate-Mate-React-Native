@@ -58,6 +58,7 @@ export default function SignUp () {
     Keyboard.dismiss();
     // Optionally navigate after signup
     // router.replace('/(tabs)');
+    router.push('/(tabs)');
   };
 
   const handleLogin = () => {

@@ -62,6 +62,7 @@ export default function Login() {
     
     // Navigate to main app after login
     // router.replace('/(tabs)');
+    router.push('/(tabs)');
   };
 
   const togglePasswordVisibility = () => {

@@ -34,7 +34,8 @@
           "imageHeight": 250,
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
