@@ -14,8 +14,8 @@ These rules define how AI tools or collaborators should behave while working wit
 
 ### 📋 Code Style
 
-- **Language:** JavaScript (React Native via Expo)
-- **Styling:** Use ESLint + Prettier (follows Airbnb style guide)
+- **Language:** JavaScript + TypeScript  (React Native via Expo)
+- **Styling:** Use ESLint + Prettier + Google Fonts + Expo 
 - **Components:** Functional components only (no class-based)
 - **State Management:** Zustand preferred; Redux acceptable
 - **Comments:** Generate brief, purposeful comments for functions and components

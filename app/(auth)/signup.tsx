@@ -1,289 +1,385 @@
 import { Colors } from '@/constants/Colors';
+import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   Image,
-  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  useWindowDimensions,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
+// Simple password strength checker
+function getPasswordStrength(password: string) {
+  if (!password) return '';
+  if (password.length < 6) return 'Weak';
+  if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8) return 'Strong';
+  return 'Medium';
+}
 
-export default function SignUp () {
+export default function SignUp() {
   const router = useRouter();
-  
+  const { width, height } = useWindowDimensions();
+
+  // State for form fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  
-  // Refs for text inputs to enable focus navigation
-  const emailInputRef = useRef<TextInput>(null);
-  const passwordInputRef = useRef<TextInput>(null);
-  
-  // Animation values
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Run entrance animation
+  // Animation for card entrance
+  const cardAnim = useRef(new Animated.Value(60)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
+      Animated.timing(cardAnim, {
+        toValue: 0,
+        duration: 700,
         useNativeDriver: true,
       }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 700,
         useNativeDriver: true,
       }),
     ]).start();
-  }, [
-    fadeAnim,
-    slideAnim
-  ]);
+  }, [cardAnim, cardOpacity]);
 
+  // Responsive units
+  const rem = width / 380;
+  const vSpacing = height * 0.02;
+
+  // Handle form submission
   const handleSignUp = () => {
-    // Implement sign up functionality
-    console.log('Creating account with:', name, email, password);
-    Keyboard.dismiss();
-    // Optionally navigate after signup
-    // router.replace('/(tabs)');
-    router.push('/(tabs)');
+    setError('');
+    if (!name || !email || !password) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      router.push('/(tabs)');
+    }, 1200);
   };
 
+  // Navigate to login
   const handleLogin = () => {
     router.push('/login');
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  // Toggle password visibility
+  const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
+
+  // Password strength
+  const passwordStrength = getPasswordStrength(password);
+  const passwordStrengthColor =
+    passwordStrength === 'Strong' ? '#4BB543' : passwordStrength === 'Medium' ? '#F2C94C' : '#EB5757';
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={['#FFFFFF', '#E6F7FF']}
-        style={styles.gradient}
-      />
-      
-      <View style={styles.container}>
-        <View style={styles.headerSection}>
-          <Image 
-            source={require('@/assets/images/logo.png')} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join Hydrate Mate today</Text>
-        </View>
-        
-        <Animated.View 
-          style={[
-            styles.formSection,
-            { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
-          ]}
+      {/* Warm inviting gradient background */}
+      <LinearGradient colors={['#E6F7FF', '#B3E0FF', '#FFFFFF']} style={StyleSheet.absoluteFill} />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              placeholderTextColor="#88B7E3"
-              value={name}
-              onChangeText={setName}
-              returnKeyType="next"
-              onSubmitEditing={() => emailInputRef.current?.focus()}
-              // autoFocus
-              blurOnSubmit={false}
+          {/* Top mascot/illustration and headline */}
+          <View style={{ alignItems: 'center', marginTop: vSpacing * 2, marginBottom: vSpacing }}>
+            <Image
+              source={require('@/assets/images/logo2.png')}
+              style={{ width: width * 0.28, height: width * 0.28, marginBottom: vSpacing }}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
             />
+            <Text style={[styles.headline, { fontSize: 25 * rem }]}>Let&apos;s get you hydrated!</Text>
+            <Text style={[styles.subheadline, { fontSize: 15 * rem, marginTop: 4, marginBottom: vSpacing }]}>Create your free Hydrate Mate account</Text>
           </View>
-          
-          <View style={styles.inputContainer}>
-            <TextInput
-              ref={emailInputRef}
-              style={styles.input}
-              placeholder="Email Address"
-              placeholderTextColor="#88B7E3"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              returnKeyType="next"
-              onSubmitEditing={() => passwordInputRef.current?.focus()}
-              blurOnSubmit={false}
-            />
-          </View>
-          
-          <View style={styles.passwordContainer}>
-            <TextInput
-              ref={passwordInputRef}
-              style={[styles.input, styles.passwordInput]}
-              placeholder="Password"
-              placeholderTextColor="#88B7E3"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              returnKeyType="done"
-              onSubmitEditing={handleSignUp}
-            />
-            <TouchableOpacity 
-              style={styles.passwordToggle}
-              onPress={togglePasswordVisibility}
-              activeOpacity={0.7}
+
+          {/* Floating card for the form */}
+          <Animated.View
+            style={[
+              styles.card,
+              {
+                marginHorizontal: width * 0.05,
+                padding: vSpacing * 1.5,
+                transform: [{ translateY: cardAnim }],
+                opacity: cardOpacity,
+              },
+            ]}
+          >
+            {/* Name Input */}
+            <View style={styles.inputRow}>
+              <Feather name="user" size={22} color="#88B7E3" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { fontSize: 15 * rem }]}
+                placeholder="Full Name"
+                placeholderTextColor="#88B7E3"
+                value={name}
+                onChangeText={setName}
+                returnKeyType="next"
+                blurOnSubmit={false}
+                accessibilityLabel="Full Name"
+                autoCapitalize="words"
+              />
+            </View>
+            {/* Email Input */}
+            <View style={styles.inputRow}>
+              <Feather name="mail" size={22} color="#88B7E3" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { fontSize: 15 * rem }]}
+                placeholder="Email Address"
+                placeholderTextColor="#88B7E3"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                returnKeyType="next"
+                blurOnSubmit={false}
+                accessibilityLabel="Email Address"
+              />
+            </View>
+            {/* Password Input */}
+            <View style={styles.inputRow}>
+              <Feather name="lock" size={22} color="#88B7E3" style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { fontSize: 15 * rem, paddingRight: 52 }]}
+                placeholder="Password"
+                placeholderTextColor="#88B7E3"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                returnKeyType="done"
+                accessibilityLabel="Password"
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  right: 2,
+                  top: 0,
+                  bottom: 0,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: 44,
+                  height: '100%',
+                }}
+                onPress={togglePasswordVisibility}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <Feather
+                  name={!showPassword ? 'eye' : 'eye-off'}
+                  size={28}
+                  color={Colors.light.tint}
+                />
+              </TouchableOpacity>
+            </View>
+            {/* Password Strength Feedback */}
+            {password.length > 0 && (
+              <Text style={{ color: passwordStrengthColor, fontSize: 13 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>
+                Password strength: {passwordStrength}
+              </Text>
+            )}
+            {/* Error Message */}
+            {error ? (
+              <Text style={{ color: '#EB5757', fontSize: 14 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>{error}</Text>
+            ) : null}
+            {/* Create Account Button */}
+            <TouchableOpacity
+              style={[styles.createButton, isSubmitting && { opacity: 0.7 }]}
+              onPress={handleSignUp}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Create Account"
+              disabled={isSubmitting}
             >
-              <Text style={styles.passwordToggleText}>
-                {showPassword ? 'Hide' : 'Show'}
+              <Text style={[styles.createButtonText, { fontSize: 17 * rem }]}>
+                {isSubmitting ? 'Creating...' : 'Create Account'}
               </Text>
             </TouchableOpacity>
+            {/* Divider */}
+            <View style={styles.dividerRow}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.divider} />
+            </View>
+            {/* Social Signup Placeholders */}
+            <View style={styles.socialRow}>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Continue with Google">
+                <Image source={require('@/assets/images/google.png')} style={styles.socialIcon} />
+                <Text style={styles.socialText}>Google</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Continue with Apple">
+                <Image source={require('@/assets/images/apple.png')} style={styles.socialIcon} />
+                <Text style={styles.socialText}>Apple</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+
+          {/* Login Prompt */}
+          <View style={[styles.loginPrompt, { marginTop: vSpacing * 2 }]}>
+            <Text style={[styles.loginPromptText, { fontSize: 15 * rem }]}>Already have an account? </Text>
+            <TouchableOpacity
+              onPress={handleLogin}
+              accessibilityRole="button"
+              accessibilityLabel="Log In"
+            >
+              <Text style={[styles.loginText, { fontSize: 15 * rem, marginLeft: 2 * rem }]}>Log In</Text>
+            </TouchableOpacity>
           </View>
-          
-          <TouchableOpacity 
-            style={styles.createButton}
-            onPress={handleSignUp}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.createButtonText}>Create Account</Text>
-          </TouchableOpacity>
-        </Animated.View>
-        
-        <View style={styles.loginPrompt}>
-          <Text style={styles.loginPromptText}>Already have an account? </Text>
-          <TouchableOpacity onPress={handleLogin}>
-            <Text style={styles.loginText}>Log In</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
+// Stylesheet for the signup screen
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
-  gradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  container: {
-    flex: 1,
-    paddingHorizontal: width * 0.08,
-    justifyContent: 'space-between',
-    paddingVertical: width * 0.1,
-  },
-  headerSection: {
-    alignItems: 'center',
-    marginTop: width * 0.05,
-  },
-  logo: {
-    width: width * 0.2,
-    height: width * 0.2,
-    marginBottom: width * 0.04,
-  },
-  title: {
-    fontSize: width * 0.07,
+  headline: {
     fontWeight: '700',
     color: '#0E3757',
     textAlign: 'center',
   },
-  subtitle: {
-    fontSize: width * 0.045,
+  subheadline: {
     color: '#4A85B9',
-    marginTop: width * 0.02,
-    marginBottom: width * 0.04,
+    textAlign: 'center',
   },
-  formSection: {
-    width: '100%',
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.10,
+    shadowRadius: 16,
+    elevation: 8,
+    alignSelf: 'center',
+    width: '90%',
+    marginBottom: 16,
+  },
+  inputRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F6FAFF',
+    borderRadius: 12,
+    marginBottom: 14,
+    paddingLeft: 10,
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: width * 0.05,
+  inputIcon: {
+    width: 22,
+    height: 22,
+    marginRight: 6,
+    opacity: 0.7,
   },
   input: {
-    backgroundColor: 'white',
-    width: '100%',
+    flex: 1,
+    backgroundColor: 'transparent',
     borderRadius: 12,
-    padding: width * 0.045,
-    fontSize: width * 0.045,
     color: '#003366',
-    borderWidth: 1,
-    borderColor: '#E0F0FF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  passwordContainer: {
-    width: '100%',
-    position: 'relative',
-    marginBottom: width * 0.05,
-  },
-  passwordInput: {
-    paddingRight: width * 0.15,
+    paddingVertical: 12,
+    paddingHorizontal: 0,
   },
   passwordToggle: {
     position: 'absolute',
-    right: width * 0.04,
+    right: 10,
     top: 0,
     bottom: 0,
     justifyContent: 'center',
-  },
-  passwordToggleText: {
-    color: Colors.light.tint,
-    fontSize: width * 0.04,
-    fontWeight: '500',
+    paddingHorizontal: 8,
+    minHeight: 44,
   },
   createButton: {
     backgroundColor: Colors.light.tint,
-    width: '100%',
     borderRadius: 25,
-    padding: width * 0.045,
     alignItems: 'center',
-    marginTop: width * 0.02,
+    justifyContent: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    minHeight: 48,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
     elevation: 5,
   },
   createButtonText: {
     color: 'white',
-    fontSize: width * 0.05,
     fontWeight: '600',
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E0F0FF',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#A0B8D9',
+    fontWeight: '500',
+  },
+  socialRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F6FAFF',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  socialIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  socialText: {
+    color: '#003366',
+    fontWeight: '500',
+    fontSize: 15,
   },
   loginPrompt: {
     flexDirection: 'row',
-    marginTop: width * 0.05,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loginPromptText: {
     color: '#4A85B9',
-    fontSize: width * 0.045,
   },
   loginText: {
     color: Colors.light.tint,
-    fontSize: width * 0.045,
     fontWeight: '600',
   },
 });
