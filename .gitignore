@@ -83,3 +83,10 @@ app-example
 
 .trae
 .cursor/rules/my-custom-rules.mdc
+
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.staging
