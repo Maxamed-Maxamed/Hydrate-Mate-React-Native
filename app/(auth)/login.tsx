@@ -89,15 +89,15 @@ export default function Login() {
           showsVerticalScrollIndicator={false}
         >
           {/* Top mascot/illustration and headline */}
-          <View style={{ alignItems: 'center', marginTop: vSpacing * 2.5, marginBottom: vSpacing * 1.5 }}>
+          <View style={{ alignItems: 'center', marginTop: vSpacing * 2, marginBottom: vSpacing }}>
             <Image
               source={require('@/assets/images/logo2.png')}
-              style={{ width: width * 0.36, height: width * 0.36, marginBottom: vSpacing * 1.2 }}
+              style={{ width: width * 0.28, height: width * 0.28, marginBottom: vSpacing }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
-            <Text style={[styles.headline, { fontSize: 32 * rem }]}>Welcome Back! 😊</Text>
-            <Text style={[styles.subheadline, { fontSize: 19 * rem, marginTop: 8, marginBottom: vSpacing * 1.2 }]}>Log in to your Hydrate Mate account</Text>
+            <Text style={[styles.headline, { fontSize: 25 * rem }]}>Welcome Back! 😊</Text>
+            <Text style={[styles.subheadline, { fontSize: 15 * rem, marginTop: 4, marginBottom: vSpacing }]}>Log in to your Hydrate Mate account</Text>
           </View>
 
           {/* Floating card for the form */}
@@ -114,9 +114,9 @@ export default function Login() {
           >
             {/* Email Input */}
             <View style={styles.inputRow}>
-              <Feather name="mail" size={28} color="#88B7E3" style={styles.inputIcon} />
+              <Feather name="mail" size={22} color="#88B7E3" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { fontSize: 19 * rem }]}
+                style={[styles.input, { fontSize: 15 * rem }]}
                 placeholder="Email Address"
                 placeholderTextColor="#88B7E3"
                 value={email}
@@ -130,9 +130,9 @@ export default function Login() {
             </View>
             {/* Password Input */}
             <View style={styles.inputRow}>
-              <Feather name="lock" size={28} color="#88B7E3" style={styles.inputIcon} />
+              <Feather name="lock" size={22} color="#88B7E3" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { fontSize: 19 * rem, paddingRight: 60 }]}
+                style={[styles.input, { fontSize: 15 * rem, paddingRight: 52 }]}
                 placeholder="Password"
                 placeholderTextColor="#88B7E3"
                 value={password}
@@ -150,18 +150,18 @@ export default function Login() {
                   bottom: 0,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  width: 52,
+                  width: 44,
                   height: '100%',
                 }}
                 onPress={togglePasswordVisibility}
                 activeOpacity={0.7}
                 accessibilityRole="button"
                 accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-                hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               >
                 <Feather
                   name={!showPassword ? 'eye' : 'eye-off'}
-                  size={32}
+                  size={28}
                   color={Colors.light.tint}
                 />
               </TouchableOpacity>
@@ -172,14 +172,14 @@ export default function Login() {
             ) : null}
             {/* Login Button */}
             <TouchableOpacity
-              style={[styles.loginButton, isSubmitting && { opacity: 0.7 }, { minHeight: 56 }]}
+              style={[styles.loginButton, isSubmitting && { opacity: 0.7 }, { minHeight: 48 }]}
               onPress={handleLogin}
               activeOpacity={0.8}
               accessibilityRole="button"
               accessibilityLabel="Log In"
               disabled={isSubmitting}
             >
-              <Text style={[styles.loginButtonText, { fontSize: 22 * rem }]}>
+              <Text style={[styles.loginButtonText, { fontSize: 17 * rem }]}>
                 {isSubmitting ? 'Logging in...' : 'Log In'}
               </Text>
             </TouchableOpacity>
@@ -203,10 +203,10 @@ export default function Login() {
           </Animated.View>
 
           {/* Signup Prompt */}
-          <View style={[styles.signupPrompt, { marginTop: vSpacing * 2.5 }]}> 
-            <Text style={[styles.signupPromptText, { fontSize: 18 * rem }]}>Don&apos;t have an account? </Text>
+          <View style={[styles.signupPrompt, { marginTop: vSpacing * 2 }]}> 
+            <Text style={[styles.signupPromptText, { fontSize: 15 * rem }]}>Don&apos;t have an account? </Text>
             <TouchableOpacity onPress={handleSignup} accessibilityRole="button" accessibilityLabel="Sign Up">
-              <Text style={[styles.signupText, { fontSize: 18 * rem, marginLeft: 3 * rem }]}>Sign Up</Text>
+              <Text style={[styles.signupText, { fontSize: 15 * rem, marginLeft: 2 * rem }]}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   inputIcon: {
-    width: 28,
-    height: 28,
+    width: 22,
+    height: 22,
     marginRight: 6,
     opacity: 0.7,
   },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: 12,
     color: '#003366',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 0,
   },
   loginButton: {
@@ -269,9 +269,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
-    marginBottom: 12,
-    minHeight: 56,
+    marginTop: 8,
+    marginBottom: 8,
+    minHeight: 48,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: 'white',
     fontWeight: '600',
+    fontSize: 17,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -329,11 +330,11 @@ const styles = StyleSheet.create({
   },
   signupPromptText: {
     color: '#4A85B9',
-    fontSize: 18,
+    fontSize: 15,
   },
   signupText: {
     color: Colors.light.tint,
     fontWeight: '600',
-    fontSize: 18,
+    fontSize: 15,
   },
 });
