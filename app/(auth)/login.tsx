@@ -57,19 +57,6 @@ export default function Login() {
   // Handle form submission
   const handleLogin = async () => {
     setError('');
-    
-    // Basic validation
-    if (!email.trim() || !password.trim()) {
-      setError('Please fill in all fields.');
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email address.');
-      return;
-    }
 
     try {
       const result = await signInUser({

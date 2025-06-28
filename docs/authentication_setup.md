@@ -53,7 +53,9 @@ The following dependencies are required:
 {
   "@supabase/supabase-js": "^2.50.0",
   "zustand": "^4.5.0",
-  "@react-native-async-storage/async-storage": "2.1.2"
+  "@react-native-async-storage/async-storage": "2.1.2",
+  "expo-apple-authentication": "~7.2.4",
+  "expo-auth-session": "~6.2.0"
 }
 ```
 
@@ -183,15 +185,20 @@ npm install
 
 1. Create a Supabase project
 2. Enable Email authentication in Auth settings
-3. **Disable email confirmation** in Auth > Settings > Email Auth
+3. **Disable email confirmation** in Auth > Settings > Email Auth:
+   - Go to your Supabase dashboard
+   - Navigate to Authentication > Settings
+   - Under "Email Auth", uncheck "Enable email confirmations"
+   - Save the changes
 4. Configure email templates (optional, for password reset)
 
 ### Email Confirmation
 
-**Email confirmation is disabled by default** to provide immediate access:
+**Email confirmation is disabled at the Supabase project level** to provide immediate access:
 - Users can sign up and immediately use the app
 - No email verification step required
 - Faster onboarding experience
+- **Important**: This setting must be configured in your Supabase dashboard, not in the code
 
 ## 🧪 Testing
 

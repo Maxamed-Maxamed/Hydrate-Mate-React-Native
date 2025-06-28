@@ -66,25 +66,6 @@ export default function SignUp() {
   // Handle form submission
   const handleSignUp = async () => {
     setError('');
-    
-    // Basic validation
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      setError('Please fill in all fields.');
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    // Password validation
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.');
-      return;
-    }
 
     try {
       const result = await signUpUser({

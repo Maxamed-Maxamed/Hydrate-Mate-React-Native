@@ -15,6 +15,7 @@ interface AuthState {
   signOutUser: () => Promise<{ success: boolean; error?: string }>;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
+  cleanup: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -22,6 +23,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: true,
   isAuthenticated: false,
+
+  // Store the unsubscribe function
+  _unsubscribe: null as (() => void) | null,
 
   // Initialize authentication state
   initializeAuth: async () => {
@@ -45,14 +49,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
       }
 
-      // Listen for auth state changes
-      onAuthStateChange((user) => {
+      // Clean up any existing subscription
+      const currentState = get();
+      if (currentState._unsubscribe) {
+        currentState._unsubscribe();
+      }
+
+      // Listen for auth state changes and store the unsubscribe function
+      const unsubscribe = onAuthStateChange((user) => {
         set({ 
           user, 
           isAuthenticated: !!user,
           isLoading: false 
         });
       });
+
+      // Store the unsubscribe function
+      set({ _unsubscribe: unsubscribe });
 
     } catch (error) {
       console.error('Auth initialization error:', error);
@@ -159,5 +172,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Set loading state
   setLoading: (loading: boolean) => {
     set({ isLoading: loading });
+  },
+
+  // Cleanup function to unsubscribe from auth state changes
+  cleanup: () => {
+    const currentState = get();
+    if (currentState._unsubscribe) {
+      currentState._unsubscribe();
+      set({ _unsubscribe: null });
+    }
   },
 })); 

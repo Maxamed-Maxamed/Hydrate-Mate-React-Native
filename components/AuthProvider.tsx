@@ -8,12 +8,17 @@ interface AuthProviderProps {
 }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const { initializeAuth, isLoading } = useAuthStore();
+  const { initializeAuth, isLoading, cleanup } = useAuthStore();
 
   useEffect(() => {
     // Initialize authentication state when the app starts
     initializeAuth();
-  }, [initializeAuth]);
+
+    // Cleanup function to unsubscribe from auth state changes
+    return () => {
+      cleanup();
+    };
+  }, [initializeAuth, cleanup]);
 
   // Show loading screen while initializing auth
   if (isLoading) {

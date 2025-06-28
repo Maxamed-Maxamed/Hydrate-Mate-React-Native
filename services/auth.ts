@@ -93,7 +93,6 @@ export const signUp = async (data: SignUpData): Promise<AuthResponse> => {
           full_name: data.fullName.trim(),
           // Add any additional user metadata here
         },
-        emailRedirectTo: undefined, // Disable email confirmation
       },
     });
 
