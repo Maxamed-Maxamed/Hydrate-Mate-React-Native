@@ -90,3 +90,5 @@ app-example
 .env.production
 .env.test
 .env.staging
+docs/apple_signin_fix.md
+client_secret_1094550482717-vd4srubtgfpe8676tl3g97tjq2cp1v90.apps.googleusercontent.com.json

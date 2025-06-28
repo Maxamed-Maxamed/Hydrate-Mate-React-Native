@@ -1,4 +1,6 @@
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { Colors } from '@/constants/Colors';
+import { useAuthStore } from '@/context/authStore';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -14,28 +16,28 @@ import {
   TextInput,
   TouchableOpacity,
   useWindowDimensions,
-  View,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Simple password strength checker
+// Enhanced password strength checker
 function getPasswordStrength(password: string) {
   if (!password) return '';
-  if (password.length < 6) return 'Weak';
-  if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.length >= 8) return 'Strong';
+  if (password.length < 8) return 'Weak';
+  if (password.match(/[A-Z]/) && password.match(/[a-z]/) && password.match(/[0-9]/) && password.length >= 8) return 'Strong';
   return 'Medium';
 }
 
 export default function SignUp() {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
+  const { signUpUser, isLoading } = useAuthStore();
 
   // State for form fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   // Animation for card entrance
@@ -62,22 +64,50 @@ export default function SignUp() {
   const vSpacing = height * 0.02;
 
   // Handle form submission
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setError('');
-    if (!name || !email || !password) {
+    
+    // Basic validation
+    if (!name.trim() || !email.trim() || !password.trim()) {
       setError('Please fill in all fields.');
       return;
     }
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push('/(tabs)');
-    }, 1200);
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
+    try {
+      const result = await signUpUser({
+        email: email.trim(),
+        password: password,
+        fullName: name.trim(),
+      });
+
+      if (result.success) {
+        // Navigate directly to main app
+        router.push('/(tabs)');
+      } else {
+        setError(result.error || 'Failed to create account. Please try again.');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      setError('An unexpected error occurred. Please try again.');
+    }
   };
 
   // Navigate to login
   const handleLogin = () => {
-    router.push('/login');
+    router.push('/(auth)/login');
   };
 
   // Toggle password visibility
@@ -89,168 +119,187 @@ export default function SignUp() {
     passwordStrength === 'Strong' ? '#4BB543' : passwordStrength === 'Medium' ? '#F2C94C' : '#EB5757';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Warm inviting gradient background */}
-      <LinearGradient colors={['#E6F7FF', '#B3E0FF', '#FFFFFF']} style={StyleSheet.absoluteFill} />
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <ProtectedRoute requireAuth={false}>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Warm inviting gradient background */}
+        <LinearGradient colors={['#E6F7FF', '#B3E0FF', '#FFFFFF']} style={StyleSheet.absoluteFill} />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
         >
-          {/* Top mascot/illustration and headline */}
-          <View style={{ alignItems: 'center', marginTop: vSpacing * 2, marginBottom: vSpacing }}>
-            <Image
-              source={require('@/assets/images/logo2.png')}
-              style={{ width: width * 0.28, height: width * 0.28, marginBottom: vSpacing }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-            <Text style={[styles.headline, { fontSize: 25 * rem }]}>Let&apos;s get you hydrated!</Text>
-            <Text style={[styles.subheadline, { fontSize: 15 * rem, marginTop: 4, marginBottom: vSpacing }]}>Create your free Hydrate Mate account</Text>
-          </View>
-
-          {/* Floating card for the form */}
-          <Animated.View
-            style={[
-              styles.card,
-              {
-                marginHorizontal: width * 0.05,
-                padding: vSpacing * 1.5,
-                transform: [{ translateY: cardAnim }],
-                opacity: cardOpacity,
-              },
-            ]}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {/* Name Input */}
-            <View style={styles.inputRow}>
-              <Feather name="user" size={22} color="#88B7E3" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { fontSize: 15 * rem }]}
-                placeholder="Full Name"
-                placeholderTextColor="#88B7E3"
-                value={name}
-                onChangeText={setName}
-                returnKeyType="next"
-                blurOnSubmit={false}
-                accessibilityLabel="Full Name"
-                autoCapitalize="words"
+            {/* Top mascot/illustration and headline */}
+            <View style={{ alignItems: 'center', marginTop: vSpacing * 2, marginBottom: vSpacing }}>
+              <Image
+                source={require('@/assets/images/logo2.png')}
+                style={{ width: width * 0.28, height: width * 0.28, marginBottom: vSpacing }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
               />
+              <Text style={[styles.headline, { fontSize: 25 * rem }]}>Let&apos;s get you hydrated!</Text>
+              <Text style={[styles.subheadline, { fontSize: 15 * rem, marginTop: 4, marginBottom: vSpacing }]}>Create your free Hydrate Mate account</Text>
             </View>
-            {/* Email Input */}
-            <View style={styles.inputRow}>
-              <Feather name="mail" size={22} color="#88B7E3" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { fontSize: 15 * rem }]}
-                placeholder="Email Address"
-                placeholderTextColor="#88B7E3"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                returnKeyType="next"
-                blurOnSubmit={false}
-                accessibilityLabel="Email Address"
-              />
-            </View>
-            {/* Password Input */}
-            <View style={styles.inputRow}>
-              <Feather name="lock" size={22} color="#88B7E3" style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { fontSize: 15 * rem, paddingRight: 52 }]}
-                placeholder="Password"
-                placeholderTextColor="#88B7E3"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                returnKeyType="done"
-                accessibilityLabel="Password"
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  right: 2,
-                  top: 0,
-                  bottom: 0,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  width: 44,
-                  height: '100%',
-                }}
-                onPress={togglePasswordVisibility}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
-                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              >
-                <Feather
-                  name={!showPassword ? 'eye' : 'eye-off'}
-                  size={28}
-                  color={Colors.light.tint}
-                />
-              </TouchableOpacity>
-            </View>
-            {/* Password Strength Feedback */}
-            {password.length > 0 && (
-              <Text style={{ color: passwordStrengthColor, fontSize: 13 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>
-                Password strength: {passwordStrength}
-              </Text>
-            )}
-            {/* Error Message */}
-            {error ? (
-              <Text style={{ color: '#EB5757', fontSize: 14 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>{error}</Text>
-            ) : null}
-            {/* Create Account Button */}
-            <TouchableOpacity
-              style={[styles.createButton, isSubmitting && { opacity: 0.7 }]}
-              onPress={handleSignUp}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Create Account"
-              disabled={isSubmitting}
-            >
-              <Text style={[styles.createButtonText, { fontSize: 17 * rem }]}>
-                {isSubmitting ? 'Creating...' : 'Create Account'}
-              </Text>
-            </TouchableOpacity>
-            {/* Divider */}
-            <View style={styles.dividerRow}>
-              <View style={styles.divider} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.divider} />
-            </View>
-            {/* Social Signup Placeholders */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Continue with Google">
-                <Image source={require('@/assets/images/google.png')} style={styles.socialIcon} />
-                <Text style={styles.socialText}>Google</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Continue with Apple">
-                <Image source={require('@/assets/images/apple.png')} style={styles.socialIcon} />
-                <Text style={styles.socialText}>Apple</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
 
-          {/* Login Prompt */}
-          <View style={[styles.loginPrompt, { marginTop: vSpacing * 2 }]}>
-            <Text style={[styles.loginPromptText, { fontSize: 15 * rem }]}>Already have an account? </Text>
-            <TouchableOpacity
-              onPress={handleLogin}
-              accessibilityRole="button"
-              accessibilityLabel="Log In"
+            {/* Floating card for the form */}
+            <Animated.View
+              style={[
+                styles.card,
+                {
+                  marginHorizontal: width * 0.05,
+                  padding: vSpacing * 1.5,
+                  transform: [{ translateY: cardAnim }],
+                  opacity: cardOpacity,
+                },
+              ]}
             >
-              <Text style={[styles.loginText, { fontSize: 15 * rem, marginLeft: 2 * rem }]}>Log In</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+              {/* Name Input */}
+              <View style={styles.inputRow}>
+                <Feather name="user" size={22} color="#88B7E3" style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { fontSize: 15 * rem }]}
+                  placeholder="Full Name"
+                  placeholderTextColor="#88B7E3"
+                  value={name}
+                  onChangeText={setName}
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  accessibilityLabel="Full Name"
+                  autoCapitalize="words"
+                  editable={!isLoading}
+                />
+              </View>
+              {/* Email Input */}
+              <View style={styles.inputRow}>
+                <Feather name="mail" size={22} color="#88B7E3" style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { fontSize: 15 * rem }]}
+                  placeholder="Email Address"
+                  placeholderTextColor="#88B7E3"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  returnKeyType="next"
+                  blurOnSubmit={false}
+                  accessibilityLabel="Email Address"
+                  editable={!isLoading}
+                />
+              </View>
+              {/* Password Input */}
+              <View style={styles.inputRow}>
+                <Feather name="lock" size={22} color="#88B7E3" style={styles.inputIcon} />
+                <TextInput
+                  style={[styles.input, { fontSize: 15 * rem, paddingRight: 52 }]}
+                  placeholder="Password"
+                  placeholderTextColor="#88B7E3"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  returnKeyType="done"
+                  accessibilityLabel="Password"
+                  autoCapitalize="none"
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={{
+                    position: 'absolute',
+                    right: 2,
+                    top: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 44,
+                    height: '100%',
+                  }}
+                  onPress={togglePasswordVisibility}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  disabled={isLoading}
+                >
+                  <Feather
+                    name={!showPassword ? 'eye' : 'eye-off'}
+                    size={28}
+                    color={Colors.light.tint}
+                  />
+                </TouchableOpacity>
+              </View>
+              {/* Password Strength Feedback */}
+              {password.length > 0 && (
+                <Text style={{ color: passwordStrengthColor, fontSize: 13 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>
+                  Password strength: {passwordStrength}
+                </Text>
+              )}
+              {/* Error Message */}
+              {error ? (
+                <Text style={{ color: '#EB5757', fontSize: 14 * rem, marginBottom: vSpacing * 0.5, marginLeft: 8 }}>{error}</Text>
+              ) : null}
+              {/* Create Account Button */}
+              <TouchableOpacity
+                style={[styles.createButton, isLoading && { opacity: 0.7 }]}
+                onPress={handleSignUp}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Create Account"
+                disabled={isLoading}
+              >
+                <Text style={[styles.createButtonText, { fontSize: 17 * rem }]}>
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </Text>
+              </TouchableOpacity>
+              {/* Divider */}
+              <View style={styles.dividerRow}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.divider} />
+              </View>
+              {/* Social Signup Placeholders */}
+              <View style={styles.socialRow}>
+                <TouchableOpacity 
+                  style={[styles.socialButton, isLoading && { opacity: 0.5 }]} 
+                  activeOpacity={0.8} 
+                  accessibilityRole="button" 
+                  accessibilityLabel="Continue with Google"
+                  disabled={isLoading}
+                >
+                  <Image source={require('@/assets/images/google.png')} style={styles.socialIcon} />
+                  <Text style={styles.socialText}>Google</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.socialButton, isLoading && { opacity: 0.5 }]} 
+                  activeOpacity={0.8} 
+                  accessibilityRole="button" 
+                  accessibilityLabel="Continue with Apple"
+                  disabled={isLoading}
+                >
+                  <Image source={require('@/assets/images/apple.png')} style={styles.socialIcon} />
+                  <Text style={styles.socialText}>Apple</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+
+            {/* Login Prompt */}
+            <View style={[styles.loginPrompt, { marginTop: vSpacing * 2 }]}>
+              <Text style={[styles.loginPromptText, { fontSize: 15 * rem }]}>Already have an account? </Text>
+              <TouchableOpacity
+                onPress={handleLogin}
+                accessibilityRole="button"
+                accessibilityLabel="Log In"
+                disabled={isLoading}
+              >
+                <Text style={[styles.loginText, { fontSize: 15 * rem, marginLeft: 2 * rem }]}>Log In</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 
