@@ -16,7 +16,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     // Cleanup function to unsubscribe from auth state changes
     return () => {
-      cleanup();
+      try {
+        cleanup();
+      } catch (error) {
+        console.warn('Auth cleanup error:', error);
+      }
     };
   }, [initializeAuth, cleanup]);
 

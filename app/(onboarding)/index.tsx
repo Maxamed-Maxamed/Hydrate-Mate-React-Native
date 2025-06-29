@@ -6,6 +6,7 @@ import {
   Animated,
   Dimensions,
   FlatList,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,25 +28,26 @@ interface OnboardingSlide {
 const onboardingData: OnboardingSlide[] = [
   {
     id: '1',
-    title: 'Welcome to Hydrate Mate! 💧',
+    image: require('@/assets/images/logo.png'),
+    title: 'Welcome to Hydrate Mate!',
     description: 'Your personal hydration companion that helps you build healthy drinking habits and stay properly hydrated every day.',
     emoji: '💧',
   },
   {
     id: '2',
-    title: 'Smart Water Tracking 📊',
+    title: 'Smart Water Tracking',
     description: 'Log your water intake with custom amounts, track your daily progress, and visualize your hydration patterns over time.',
     emoji: '📊',
   },
   {
     id: '3',
-    title: 'Intelligent Reminders ⏰',
+    title: 'Intelligent Reminders',
     description: 'Get personalized reminders based on your schedule, activity level, and hydration goals to never miss a sip.',
     emoji: '⏰',
   },
   {
     id: '4',
-    title: 'Gamified Experience 🏆',
+    title: 'Gamified Experience',
     description: 'Unlock achievements, maintain streaks, and compete with yourself to make hydration fun and rewarding.',
     emoji: '🏆',
   },
@@ -102,14 +104,23 @@ export default function OnboardingScreen() {
     return (
       <View style={[styles.slide, { width: screenWidth }]}>
         <View style={styles.slideContent}>
-          {/* Emoji/Icon */}
+          {/* Logo/Emoji Section */}
           <View style={styles.emojiContainer}>
-            <Text 
-              style={[styles.emoji, { fontSize: 80 * rem }]}
-              accessibilityLabel={`${item.emoji} icon representing ${item.title}`}
-            >
-              {item.emoji}
-            </Text>
+            {item.image ? (
+              <Image
+                source={item.image}
+                style={[styles.logoImage, { width: 120, height: 120 }]}
+                resizeMode="contain"
+                accessibilityLabel="Hydrate Mate logo"
+              />
+            ) : (
+              <Text 
+                style={[styles.emoji, { fontSize: 80 * rem }]}
+                accessibilityLabel={`${item.emoji} icon representing ${item.title}`}
+              >
+                {item.emoji}
+              </Text>
+            )}
           </View>
 
           {/* Title */}
@@ -288,5 +299,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: 'white',
     letterSpacing: 0.5,
+  },
+  logoImage: {
+    marginBottom: 40,
   },
 }); 

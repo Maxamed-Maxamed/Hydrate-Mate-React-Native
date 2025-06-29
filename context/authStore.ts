@@ -7,6 +7,7 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  _unsubscribe: (() => void) | null;
   
   // Actions
   initializeAuth: () => Promise<void>;
@@ -23,9 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoading: true,
   isAuthenticated: false,
-
-  // Store the unsubscribe function
-  _unsubscribe: null as (() => void) | null,
+  _unsubscribe: null,
 
   // Initialize authentication state
   initializeAuth: async () => {
@@ -51,7 +50,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Clean up any existing subscription
       const currentState = get();
-      if (currentState._unsubscribe) {
+      if (currentState._unsubscribe && typeof currentState._unsubscribe === 'function') {
         currentState._unsubscribe();
       }
 
@@ -177,7 +176,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Cleanup function to unsubscribe from auth state changes
   cleanup: () => {
     const currentState = get();
-    if (currentState._unsubscribe) {
+    if (currentState._unsubscribe && typeof currentState._unsubscribe === 'function') {
       currentState._unsubscribe();
       set({ _unsubscribe: null });
     }

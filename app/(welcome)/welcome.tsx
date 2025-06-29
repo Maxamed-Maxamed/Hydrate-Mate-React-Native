@@ -78,7 +78,7 @@ export default function WelcomeScreen() {
   }, [logoAnim, logoOpacity, textAnim, textOpacity, buttonAnim, buttonOpacity]);
 
   const handleGetStarted = () => {
-    // Always go to onboarding first for a consistent experience
+    // Navigate to onboarding flow
     router.push('/(onboarding)');
   };
 
