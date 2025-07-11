@@ -1,17 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { migrateOnboardingData } from '@/utils/migrateOnboardingData';
+import * as SecureStore from 'expo-secure-store';
+import { useCallback, useEffect, useState } from 'react';
+
+const ONBOARDING_KEY = 'onboardingCompleted';
 
 export const useOnboarding = () => {
   const [isOnboardingCompleted, setIsOnboardingCompleted] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    checkOnboardingStatus();
-  }, []);
-
-  const checkOnboardingStatus = async () => {
+  const checkOnboardingStatus = useCallback(async () => {
     try {
-      const status = await AsyncStorage.getItem('onboardingCompleted');
+      const status = await SecureStore.getItemAsync(ONBOARDING_KEY);
       setIsOnboardingCompleted(status === 'true');
     } catch (error) {
       console.error('Error checking onboarding status:', error);
@@ -19,11 +18,29 @@ export const useOnboarding = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  const initializeOnboarding = useCallback(async () => {
+    try {
+      // First, migrate any existing data from AsyncStorage to SecureStore
+      await migrateOnboardingData();
+      
+      // Then check the onboarding status
+      await checkOnboardingStatus();
+    } catch (error) {
+      console.error('Error initializing onboarding:', error);
+      setIsOnboardingCompleted(false);
+      setIsLoading(false);
+    }
+  }, [checkOnboardingStatus]);
+
+  useEffect(() => {
+    initializeOnboarding();
+  }, [initializeOnboarding]);
 
   const markOnboardingCompleted = async () => {
     try {
-      await AsyncStorage.setItem('onboardingCompleted', 'true');
+      await SecureStore.setItemAsync(ONBOARDING_KEY, 'true');
       setIsOnboardingCompleted(true);
       return true;
     } catch (error) {
@@ -34,7 +51,7 @@ export const useOnboarding = () => {
 
   const resetOnboarding = async () => {
     try {
-      await AsyncStorage.removeItem('onboardingCompleted');
+      await SecureStore.deleteItemAsync(ONBOARDING_KEY);
       setIsOnboardingCompleted(false);
       return true;
     } catch (error) {
