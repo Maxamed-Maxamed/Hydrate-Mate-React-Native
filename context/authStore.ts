@@ -30,25 +30,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeAuth: async () => {
     try {
       set({ isLoading: true });
-      
-      // Get current user
-      const user = await getCurrentUser();
-      
-      if (user) {
-        set({ 
-          user, 
-          isAuthenticated: true, 
-          isLoading: false 
-        });
-      } else {
-        set({ 
-          user: null, 
-          isAuthenticated: false, 
-          isLoading: false 
-        });
-      }
 
-      // Clean up any existing subscription
+      // Clean up any existing subscription first
       const currentState = get();
       if (currentState._unsubscribe && typeof currentState._unsubscribe === 'function') {
         currentState._unsubscribe();
@@ -65,6 +48,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       // Store the unsubscribe function
       set({ _unsubscribe: unsubscribe });
+      
+      // Get current user - this will trigger the onAuthStateChange callback
+      const user = await getCurrentUser();
+      
+      // Set initial state if no callback was triggered yet
+      if (user) {
+        set({ 
+          user, 
+          isAuthenticated: true, 
+          isLoading: false 
+        });
+      } else {
+        set({ 
+          user: null, 
+          isAuthenticated: false, 
+          isLoading: false 
+        });
+      }
 
     } catch (error) {
       console.error('Auth initialization error:', error);

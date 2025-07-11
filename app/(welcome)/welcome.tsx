@@ -1,7 +1,10 @@
+import { useAuthStore } from '@/context/authStore';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
+    ActivityIndicator,
     Animated,
     Image,
     KeyboardAvoidingView,
@@ -18,6 +21,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function WelcomeScreen() {
   const router = useRouter();
   const { width, height } = useWindowDimensions();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { isOnboardingCompleted, isLoading: onboardingLoading } = useOnboarding();
 
   // Responsive units
   const rem = width / 380;
@@ -30,6 +35,7 @@ export default function WelcomeScreen() {
   const textOpacity = useRef(new Animated.Value(0)).current;
   const buttonAnim = useRef(new Animated.Value(60)).current;
   const buttonOpacity = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     // Remove automatic redirect to prevent navigation loops
@@ -77,13 +83,31 @@ export default function WelcomeScreen() {
     ]).start();
   }, [logoAnim, logoOpacity, textAnim, textOpacity, buttonAnim, buttonOpacity]);
 
+  // Show loading while checking states
+  if (authLoading || onboardingLoading) {
+    return (
+      <SafeAreaView style={[{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }]}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </SafeAreaView>
+    );
+  }
+
+  // Redirect if user is authenticated
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
+  }
+
+  // Redirect if onboarding is already completed
+  if (isOnboardingCompleted) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
   const handleGetStarted = () => {
     // Navigate to onboarding flow
     router.push('/(onboarding)');
   };
 
   // Button press animation
-  const scaleAnim = useRef(new Animated.Value(1)).current;
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
       toValue: 0.96,
