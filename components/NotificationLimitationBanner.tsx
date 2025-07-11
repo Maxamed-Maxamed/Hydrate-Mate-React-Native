@@ -1,13 +1,13 @@
+import { platformUtils } from '@/utils/platformUtils';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Linking,
+    Alert,
+    Linking,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { platformUtils } from '@/utils/platformUtils';
 
 interface NotificationLimitationBannerProps {
   onDismiss?: () => void;

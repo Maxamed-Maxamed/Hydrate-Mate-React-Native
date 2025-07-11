@@ -1,7 +1,7 @@
+import { platformUtils } from '@/utils/platformUtils';
+import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
-import { platformUtils } from '@/utils/platformUtils';
 
 // Check if running in Expo Go
 const isExpoGo = Constants.appOwnership === 'expo';
